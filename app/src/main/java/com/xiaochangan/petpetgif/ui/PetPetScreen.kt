@@ -155,7 +155,7 @@ private fun PetPetContent(vm: PetPetViewModel) {
             TopAppBar(
                 title = {
                     Text(
-                        "🐾 摸头杀生成器",
+                        "🐾 超级无敌宇宙霹雳摸头杀",
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                     )
