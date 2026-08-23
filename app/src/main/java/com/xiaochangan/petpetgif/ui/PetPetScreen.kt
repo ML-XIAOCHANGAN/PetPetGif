@@ -100,14 +100,13 @@ private fun PetPetContent(vm: PetPetViewModel) {
     val params = vm.params
     val darkTheme = vm.darkTheme
 
-    // 状态栏/导航栏配色跟随主题（M3：与顶栏/背景融合）
+    // 状态栏/导航栏与背景同色（无层次）
     val context = LocalContext.current
     SideEffect {
         val window = (context as? Activity)?.window ?: return@SideEffect
-        val topBarColor = if (darkTheme) 0xFF291712.toInt() else 0xFFFFFFFF.toInt()
-        val navColor = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
-        window.statusBarColor = topBarColor
-        window.navigationBarColor = navColor
+        val bg = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
+        window.statusBarColor = bg
+        window.navigationBarColor = bg
         window.decorView.systemUiVisibility =
             if (darkTheme) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
     }
@@ -178,8 +177,8 @@ private fun PetPetContent(vm: PetPetViewModel) {
                     ) { Text(if (darkTheme) "🌚" else "🌝", fontSize = 16.sp) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
                 ),
             )
         },
@@ -308,13 +307,13 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 }
             }
 
-            // ---- 参数卡片（M3 16dp 大圆角，含操作按钮）----
+            // ---- 参数区（与背景同色，无层次）----
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -370,14 +369,14 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 }
             }
 
-            // ---- 生成结果卡片 ----
+            // ---- 生成结果（与背景同色）----
             if (vm.resultFile != null) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 6.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
                     Column(
