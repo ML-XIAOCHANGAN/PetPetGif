@@ -14,6 +14,8 @@
     <color name="preview_cream">#FFFBF3</color>
     <color name="switch_gold">#FEECBA</color>
     <color name="error_orange">#FF6E3F</color>
+    <!-- 用户设计图标：圆形背景天蓝 -->
+    <color name="icon_bg">#9DE6F9</color>
     <!-- 暗色 -->
     <color name="dark_bg">#000000</color>
     <color name="dark_card">#291712</color>
