@@ -2,7 +2,6 @@ package com.xiaochangan.petpetgif.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -14,7 +13,7 @@ import androidx.compose.ui.unit.sp
 import com.xiaochangan.petpetgif.R
 
 /**
- * 摸头杀生成器主题 —— 复刻网页版 style.css 配色：
+ * 摸头杀生成器主题 —— 复刻网页版 style.css 配色（固定浅色奶油）：
  * 奶油黄底 + 金色按钮 + 棕褐文字（--bg:#fff5d3 / --btn-bg:#fedc7d / --txt:#572e23），
  * 标题用 Balsamiq Sans、正文用 Work Sans（网站同款 Google Fonts，已内置）。
  */
@@ -24,7 +23,7 @@ val WorkSans = FontFamily(
     Font(R.font.worksans_semibold, FontWeight.SemiBold),
 )
 
-/** 明色（网页版 :root） */
+/** 明色（网页版 :root）——唯一主题，无暗色切换 */
 private val WebLightColors = lightColorScheme(
     primary = Color(0xFFFEDC7D),          // --btn-bg 金色按钮
     onPrimary = Color(0xFF943D1A),        // --btn-color 按钮棕字
@@ -46,30 +45,6 @@ private val WebLightColors = lightColorScheme(
     outlineVariant = Color(0x80E5C270),   // --input-track-bg 滑块轨
     error = Color(0xFFFF6E3F),            // --error
     onError = Color(0xFFFFFFFF),
-)
-
-/** 暗色（网页版 [data-theme=dark]） */
-private val WebDarkColors = darkColorScheme(
-    primary = Color(0xFFFED86E),          // --btn-bg 暗色金
-    onPrimary = Color(0xFF8B3918),        // --btn-color
-    primaryContainer = Color(0xFFFEE6A0),
-    onPrimaryContainer = Color(0xFF3A1F16),
-    secondary = Color(0xFFFEDF87),        // --link
-    onSecondary = Color(0xFF291712),
-    secondaryContainer = Color(0xFFF6B408),
-    onSecondaryContainer = Color(0xFFFEF1C7),
-    tertiary = Color(0xFFF6B408),
-    onTertiary = Color(0xFF291712),
-    background = Color(0xFF000000),       // --bg 黑
-    onBackground = Color(0xFFFEF1C7),     // --txt 奶油
-    surface = Color(0xFF291712),          // --fg 深棕卡
-    onSurface = Color(0xFFFEF1C7),
-    surfaceVariant = Color(0xFF301B15),   // --preview-bg
-    onSurfaceVariant = Color(0xFFFFDF74), // --txt-light
-    outline = Color(0xFFF6B408),          // --input-border
-    outlineVariant = Color(0x809E7501),   // --input-track-bg
-    error = Color(0xFFFF6C37),
-    onError = Color(0xFF291712),
 )
 
 private val WebTypography = Typography(
@@ -96,9 +71,9 @@ private val WebTypography = Typography(
 )
 
 @Composable
-fun PetPetTheme(darkTheme: Boolean = false, content: @Composable () -> Unit) {
+fun PetPetTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (darkTheme) WebDarkColors else WebLightColors,
+        colorScheme = WebLightColors,
         typography = WebTypography,
         content = content,
     )

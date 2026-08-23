@@ -2,7 +2,6 @@ package com.xiaochangan.petpetgif.ui
 
 import android.Manifest
 import android.app.Activity
-import android.graphics.Color as AndroidColor
 import android.os.Build
 import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -87,7 +86,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 fun PetPetScreen(vm: PetPetViewModel = viewModel()) {
-    PetPetTheme(darkTheme = vm.darkTheme) {
+    PetPetTheme {
         PetPetContent(vm)
     }
 }
@@ -98,17 +97,16 @@ private fun PetPetContent(vm: PetPetViewModel) {
     val sprite = vm.sprite
     val hand = vm.hand
     val params = vm.params
-    val darkTheme = vm.darkTheme
 
-    // 状态栏/导航栏与背景同色（无层次）
+    // 状态栏/导航栏与背景同色（固定浅色奶油）
     val context = LocalContext.current
     SideEffect {
         val window = (context as? Activity)?.window ?: return@SideEffect
-        val bg = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
+        val bg = 0xFFFFF5D3.toInt()
         window.statusBarColor = bg
         window.navigationBarColor = bg
         window.decorView.systemUiVisibility =
-            if (darkTheme) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
     }
 
     // 参数/图片变化 → 重渲染 5 帧
@@ -153,7 +151,7 @@ private fun PetPetContent(vm: PetPetViewModel) {
 
     Scaffold(
         topBar = {
-            // 正式 M3 顶栏（surface 底 + Balsamiq 标题 + 🌝 主题切换）
+            // M3 顶栏（与背景同色）
             TopAppBar(
                 title = {
                     Text(
@@ -161,20 +159,6 @@ private fun PetPetContent(vm: PetPetViewModel) {
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                     )
-                },
-                actions = {
-                    Button(
-                        onClick = { vm.toggleTheme() },
-                        shape = CircleShape,
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-                        modifier = Modifier
-                            .size(40.dp)
-                            .padding(end = 8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                    ) { Text(if (darkTheme) "🌚" else "🌝", fontSize = 16.sp) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,

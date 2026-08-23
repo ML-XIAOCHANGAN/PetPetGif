@@ -1,7 +1,6 @@
 package com.xiaochangan.petpetgif.ui
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -57,19 +56,6 @@ class PetPetViewModel(app: Application) : AndroidViewModel(app) {
 
     /** URL 上传输入框文本 */
     var urlText by mutableStateOf("")
-
-    /** 暗色主题（网页版 🌝/🌚 切换，持久化） */
-    var darkTheme by mutableStateOf(
-        getApplication<Application>().getSharedPreferences("petpet_theme", Context.MODE_PRIVATE)
-            .getBoolean("dark", false)
-    )
-        private set
-
-    fun toggleTheme() {
-        darkTheme = !darkTheme
-        getApplication<Application>().getSharedPreferences("petpet_theme", Context.MODE_PRIVATE)
-            .edit().putBoolean("dark", darkTheme).apply()
-    }
 
     /** 手部精灵图（560×112 五帧），懒加载一次 */
     val hand: Bitmap by lazy {
