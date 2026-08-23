@@ -30,10 +30,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -43,6 +46,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -87,6 +92,7 @@ fun PetPetScreen(vm: PetPetViewModel = viewModel()) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PetPetContent(vm: PetPetViewModel) {
     val sprite = vm.sprite
@@ -94,13 +100,14 @@ private fun PetPetContent(vm: PetPetViewModel) {
     val params = vm.params
     val darkTheme = vm.darkTheme
 
-    // 状态栏/导航栏配色跟随主题（M3：系统栏与背景融合）
+    // 状态栏/导航栏配色跟随主题（M3：与顶栏/背景融合）
     val context = LocalContext.current
     SideEffect {
         val window = (context as? Activity)?.window ?: return@SideEffect
-        val bg = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
-        window.statusBarColor = bg
-        window.navigationBarColor = bg
+        val topBarColor = if (darkTheme) 0xFF291712.toInt() else 0xFFFFFFFF.toInt()
+        val navColor = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
+        window.statusBarColor = topBarColor
+        window.navigationBarColor = navColor
         window.decorView.systemUiVisibility =
             if (darkTheme) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
     }
@@ -146,6 +153,36 @@ private fun PetPetContent(vm: PetPetViewModel) {
     }
 
     Scaffold(
+        topBar = {
+            // 正式 M3 顶栏（surface 底 + Balsamiq 标题 + 🌝 主题切换）
+            TopAppBar(
+                title = {
+                    Text(
+                        "🐾 摸头杀生成器",
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                    )
+                },
+                actions = {
+                    Button(
+                        onClick = { vm.toggleTheme() },
+                        shape = CircleShape,
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(end = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                    ) { Text(if (darkTheme) "🌚" else "🌝", fontSize = 16.sp) }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
         snackbarHost = { SnackbarHost(snackbar) },
         containerColor = MaterialTheme.colorScheme.background,
     ) { inner ->
@@ -154,42 +191,16 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 .fillMaxSize()
                 .padding(inner)
                 .verticalScroll(rememberScrollState())
-                .statusBarsPadding()
         ) {
-            // ---- 标题行（M3：内容流式标题，Balsamiq 大标题）----
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "🐾 摸头杀生成器",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.weight(1f),
-                )
-                Button(
-                    onClick = { vm.toggleTheme() },
-                    shape = CircleShape,
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-                    modifier = Modifier.size(40.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                ) { Text(if (darkTheme) "🌚" else "🌝", fontSize = 16.sp) }
-            }
-
-            // ---- 预览画布（M3 圆角 12dp，网页金边保留）----
+            // ---- 预览画布（16dp 大圆角，网页金边保留）----
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .height(300.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                     .pointerInput(adjustMode) {
                         if (!adjustMode) return@pointerInput
                         detectDragGestures { change, dragAmount ->
@@ -297,102 +308,111 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 }
             }
 
-            // ---- 参数（直接平铺，M3 8dp 节奏）----
-            Column(
+            // ---- 参数卡片（M3 16dp 大圆角，含操作按钮）----
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
-                ParamToggleRow("翻转", vm.params.flip) { vm.setFlip(it) }
-                ParamSliderRow(
-                    label = "大小",
-                    valueText = "${(params.scale * 100).roundToInt()}%",
-                    value = (params.scale * 100).coerceIn(15f, 200f),
-                    range = 15f..200f,
-                ) { vm.setScale(it / 100f) }
-                ParamSliderRow(
-                    label = "压扁",
-                    valueText = "${(params.squish * 100).roundToInt()}%",
-                    value = (params.squish * 100).coerceIn(100f, 300f),
-                    range = 100f..300f,
-                ) { vm.setSquish(it / 100f) }
-                ParamSliderRow(
-                    label = "速度",
-                    valueText = "${params.fps} fps",
-                    value = params.fps.toFloat(),
-                    range = 2f..60f,
-                ) { vm.setFps(((it / 2).roundToInt() * 2).coerceIn(2, 60)) }
-                ParamToggleRow("微调模式", adjustMode) {
-                    adjustMode = it
-                    if (it) playing = false
-                }
-                if (adjustMode) {
-                    Text(
-                        "拖动图片调整位置",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.padding(top = 2.dp),
-                    )
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    ParamToggleRow("翻转", vm.params.flip) { vm.setFlip(it) }
+                    ParamSliderRow(
+                        label = "大小",
+                        valueText = "${(params.scale * 100).roundToInt()}%",
+                        value = (params.scale * 100).coerceIn(15f, 200f),
+                        range = 15f..200f,
+                    ) { vm.setScale(it / 100f) }
+                    ParamSliderRow(
+                        label = "压扁",
+                        valueText = "${(params.squish * 100).roundToInt()}%",
+                        value = (params.squish * 100).coerceIn(100f, 300f),
+                        range = 100f..300f,
+                    ) { vm.setSquish(it / 100f) }
+                    ParamSliderRow(
+                        label = "速度",
+                        valueText = "${params.fps} fps",
+                        value = params.fps.toFloat(),
+                        range = 2f..60f,
+                    ) { vm.setFps(((it / 2).roundToInt() * 2).coerceIn(2, 60)) }
+                    ParamToggleRow("微调模式", adjustMode) {
+                        adjustMode = it
+                        if (it) playing = false
+                    }
+                    if (adjustMode) {
+                        Text(
+                            "拖动图片调整位置",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(top = 2.dp),
+                        )
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                vm.reset()
+                                currentFrame = 0
+                            },
+                            modifier = Modifier.weight(1f),
+                        ) { Text("重置") }
+                        Button(
+                            onClick = { vm.exportGif() },
+                            enabled = !vm.exporting,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(if (vm.exporting) "生成中…" else "生成 GIF")
+                        }
+                    }
                 }
             }
 
-            // ---- 操作行（M3：FilledButton + OutlinedButton 双按钮）----
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        vm.reset()
-                        currentFrame = 0
-                    },
-                    modifier = Modifier.weight(1f),
-                ) { Text("重置") }
-                Button(
-                    onClick = { vm.exportGif() },
-                    enabled = !vm.exporting,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(if (vm.exporting) "生成中…" else "生成 GIF")
-                }
-            }
-
-            // ---- 生成结果 ----
+            // ---- 生成结果卡片 ----
             if (vm.resultFile != null) {
-                Column(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
-                    AsyncImage(
-                        model = vm.resultFile,
-                        contentDescription = "生成的摸头杀 GIF",
+                    Column(
                         modifier = Modifier
-                            .size(200.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
-                        contentScale = ContentScale.Fit,
-                    )
-                    Text(
-                        vm.resultInfo,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 8.dp),
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Button(onClick = {
-                            if (Build.VERSION.SDK_INT < 29) {
-                                permLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            } else {
-                                vm.saveToGallery()
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        AsyncImage(
+                            model = vm.resultFile,
+                            contentDescription = "生成的摸头杀 GIF",
+                            modifier = Modifier
+                                .size(200.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Fit,
+                        )
+                        Text(
+                            vm.resultInfo,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(onClick = {
+                                if (Build.VERSION.SDK_INT < 29) {
+                                    permLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                } else {
+                                    vm.saveToGallery()
+                                }
+                            }) { Text("保存到相册") }
+                            OutlinedButton(onClick = { vm.shareGif()?.let { context.startActivity(it) } }) {
+                                Text("分享")
                             }
-                        }) { Text("保存到相册") }
-                        OutlinedButton(onClick = { vm.shareGif()?.let { context.startActivity(it) } }) {
-                            Text("分享")
                         }
                     }
                 }
