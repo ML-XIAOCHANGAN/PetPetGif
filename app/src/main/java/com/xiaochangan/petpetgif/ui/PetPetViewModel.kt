@@ -71,7 +71,6 @@ class PetPetViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val bmp = withContext(Dispatchers.Default) {
                 BitmapFactory.decodeResource(getApplication<Application>().resources, R.drawable.petpet_sample)
-                    ?.let { ImageUtil.scaleBitmap(it, 512) }
             }
             if (bmp != null) {
                 applySprite(bmp)
@@ -80,12 +79,12 @@ class PetPetViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** 从相册/文件 Uri 载入图片 */
+    /** 从相册/文件 Uri 载入图片（保留原始尺寸，不压缩） */
     fun loadImageUri(uri: Uri) {
         val ctx = getApplication<Application>()
         viewModelScope.launch {
             val bmp = withContext(Dispatchers.Default) {
-                ImageUtil.decodeUri(ctx, uri)?.let { ImageUtil.scaleBitmap(it, 512) }
+                ImageUtil.decodeUri(ctx, uri)
             }
             if (bmp == null) {
                 showNotice("图片加载失败，换一张试试")
@@ -96,15 +95,13 @@ class PetPetViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** 从 URL 载入图片 */
+    /** 从 URL 载入图片（保留原始尺寸，不压缩） */
     fun loadImageUrl(url: String) {
         val trimmed = url.trim()
         if (trimmed.isEmpty()) return
         viewModelScope.launch {
             val bmp = withContext(Dispatchers.Default) {
-                ImageUtil.download(trimmed)
-                    ?.let { ImageUtil.decodeBytes(it) }
-                    ?.let { ImageUtil.scaleBitmap(it, 512) }
+                ImageUtil.download(trimmed)?.let { ImageUtil.decodeBytes(it) }
             }
             if (bmp == null) {
                 showNotice("URL 图片加载失败，检查地址或网络")

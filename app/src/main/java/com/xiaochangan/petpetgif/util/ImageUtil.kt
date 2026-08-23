@@ -18,7 +18,7 @@ import java.net.URL
 /** 图片/GIF 存取与分享工具 */
 object ImageUtil {
 
-    private const val MAX_DIM = 512   // 引擎用图上限（网页版 CACHE_SIZE=256，这里略大保清晰）
+    private const val MAX_DIM = 4096   // 解码上限：保留原图尺寸，仅防极端大图 OOM（手机照片一般 <4096 不缩放）
 
     /** 从 content:// 或文件 Uri 解码图片，等比缩放至最长边 [maxDim] */
     fun decodeUri(context: Context, uri: Uri, maxDim: Int = MAX_DIM): Bitmap? = try {

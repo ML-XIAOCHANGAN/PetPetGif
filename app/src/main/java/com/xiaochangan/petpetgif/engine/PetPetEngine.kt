@@ -72,12 +72,12 @@ object PetPetEngine {
     }
 
     private val spritePaint = Paint().apply {
-        isFilterBitmap = false          // 网页版 imageSmoothingEnabled=false（保持像素感）
-        isAntiAlias = false
+        isFilterBitmap = true            // 双线性平滑：高清照片缩小不糊（网页版最近邻只适合像素图）
+        isAntiAlias = true
     }
     private val handPaint = Paint().apply {
-        isFilterBitmap = false
-        isAntiAlias = false
+        isFilterBitmap = true
+        isAntiAlias = true
     }
 
     /**
