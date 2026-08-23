@@ -94,13 +94,15 @@ private fun PetPetContent(vm: PetPetViewModel) {
     val params = vm.params
     val darkTheme = vm.darkTheme
 
-    // 状态栏配色跟随主题
+    // 状态栏/导航栏配色跟随主题（M3：系统栏与背景融合）
     val context = LocalContext.current
     SideEffect {
         val window = (context as? Activity)?.window ?: return@SideEffect
-        window.statusBarColor = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
+        val bg = if (darkTheme) AndroidColor.BLACK else 0xFFFFF5D3.toInt()
+        window.statusBarColor = bg
+        window.navigationBarColor = bg
         window.decorView.systemUiVisibility =
-            if (darkTheme) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            if (darkTheme) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
     }
 
     // 参数/图片变化 → 重渲染 5 帧
@@ -154,11 +156,11 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 .verticalScroll(rememberScrollState())
                 .statusBarsPadding()
         ) {
-            // ---- 标题行（简洁：标题 + 主题切换）----
+            // ---- 标题行（M3：内容流式标题，Balsamiq 大标题）----
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -179,15 +181,15 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 ) { Text(if (darkTheme) "🌚" else "🌝", fontSize = 16.sp) }
             }
 
-            // ---- 预览画布（网页版 .canvas：金边 + pixelated）----
+            // ---- 预览画布（M3 圆角 12dp，网页金边保留）----
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 16.dp)
                     .height(300.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                    .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                     .pointerInput(adjustMode) {
                         if (!adjustMode) return@pointerInput
                         detectDragGestures { change, dragAmount ->
@@ -232,18 +234,18 @@ private fun PetPetContent(vm: PetPetViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                PlayButton("⏮", 38.dp) {
+                PlayButton("⏮", 40.dp) {
                     playing = false
                     currentFrame = ((currentFrame - 1) % (PetPetEngine.MAX_FRAME + 1) + (PetPetEngine.MAX_FRAME + 1)) % (PetPetEngine.MAX_FRAME + 1)
                 }
-                PlayButton(if (playing) "⏸" else "▶", 38.dp) {
+                PlayButton(if (playing) "⏸" else "▶", 40.dp) {
                     playing = !playing
                 }
-                PlayButton("⏭", 38.dp) {
+                PlayButton("⏭", 40.dp) {
                     playing = false
                     currentFrame = (currentFrame + 1) % (PetPetEngine.MAX_FRAME + 1)
                 }
@@ -251,7 +253,7 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 // 图片文件名
                 Text(
                     vm.fileName.ifEmpty { "示例图" },
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -263,10 +265,10 @@ private fun PetPetContent(vm: PetPetViewModel) {
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                         )
                     },
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                ) { Text("选图片", fontSize = 13.sp) }
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                ) { Text("选图片") }
                 TextButton(onClick = { urlExpanded = !urlExpanded }) {
-                    Text("URL", fontSize = 13.sp, color = MaterialTheme.colorScheme.secondary)
+                    Text("URL", color = MaterialTheme.colorScheme.secondary)
                 }
             }
 
@@ -275,31 +277,31 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OutlinedTextField(
                         value = vm.urlText,
                         onValueChange = { vm.urlText = it },
-                        placeholder = { Text("输入图片 URL", fontSize = 13.sp) },
+                        placeholder = { Text("输入图片 URL") },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        shape = RoundedCornerShape(6.dp),
+                        shape = RoundedCornerShape(4.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
                         ),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = { vm.loadImageUrl(vm.urlText) }) { Text("上传", fontSize = 13.sp) }
+                    Button(onClick = { vm.loadImageUrl(vm.urlText) }) { Text("上传") }
                 }
             }
 
-            // ---- 参数（直接平铺）----
+            // ---- 参数（直接平铺，M3 8dp 节奏）----
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 4.dp)
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
             ) {
                 ParamToggleRow("翻转", vm.params.flip) { vm.setFlip(it) }
                 ParamSliderRow(
@@ -327,18 +329,18 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 if (adjustMode) {
                     Text(
                         "拖动图片调整位置",
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.padding(top = 2.dp),
                     )
                 }
             }
 
-            // ---- 操作行 ----
+            // ---- 操作行（M3：FilledButton + OutlinedButton 双按钮）----
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OutlinedButton(
@@ -362,7 +364,7 @@ private fun PetPetContent(vm: PetPetViewModel) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AsyncImage(
@@ -370,16 +372,16 @@ private fun PetPetContent(vm: PetPetViewModel) {
                         contentDescription = "生成的摸头杀 GIF",
                         modifier = Modifier
                             .size(200.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp)),
+                            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Fit,
                     )
                     Text(
                         vm.resultInfo,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 6.dp),
+                        modifier = Modifier.padding(vertical = 8.dp),
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Button(onClick = {
@@ -388,9 +390,9 @@ private fun PetPetContent(vm: PetPetViewModel) {
                             } else {
                                 vm.saveToGallery()
                             }
-                        }) { Text("保存到相册", fontSize = 13.sp) }
+                        }) { Text("保存到相册") }
                         OutlinedButton(onClick = { vm.shareGif()?.let { context.startActivity(it) } }) {
-                            Text("分享", fontSize = 13.sp)
+                            Text("分享")
                         }
                     }
                 }
@@ -423,7 +425,7 @@ private fun ParamToggleRow(label: String, checked: Boolean, onChecked: (Boolean)
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, fontSize = 15.sp, modifier = Modifier.weight(1f))
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
         Switch(
             checked = checked,
             onCheckedChange = onChecked,
@@ -452,7 +454,7 @@ private fun ParamSliderRow(
             .padding(vertical = 0.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, fontSize = 15.sp, modifier = Modifier.width(52.dp))
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.width(52.dp))
         Slider(
             value = value,
             onValueChange = onChanged,
@@ -468,7 +470,7 @@ private fun ParamSliderRow(
         )
         Text(
             valueText,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.width(58.dp),
