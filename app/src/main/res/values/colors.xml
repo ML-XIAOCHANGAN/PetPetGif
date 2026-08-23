@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 网页版摸头杀生成器配色（style.css :root 变量） -->
+    <color name="bg_cream">#FFF5D3</color>
+    <color name="card_white">#FFFFFF</color>
+    <color name="txt_brown">#572E23</color>
+    <color name="txt_light_brown">#5E3226</color>
+    <color name="header_brown">#7C4231</color>
+    <color name="link_orange">#B24A1F</color>
+    <color name="btn_gold">#FEDC7D</color>
+    <color name="btn_brown">#943D1A</color>
+    <color name="btn_gold_hover">#FED86E</color>
+    <color name="gold_border">#F6B816</color>
+    <color name="preview_cream">#FFFBF3</color>
+    <color name="switch_gold">#FEECBA</color>
+    <color name="error_orange">#FF6E3F</color>
+    <!-- 暗色 -->
+    <color name="dark_bg">#000000</color>
+    <color name="dark_card">#291712</color>
+    <color name="dark_txt">#FEF1C7</color>
+    <color name="dark_btn">#FED86E</color>
+    <color name="dark_btn_txt">#8B3918</color>
+    <color name="dark_border">#F6B408</color>
+    <color name="dark_canvas">#532F25</color>
+</resources>

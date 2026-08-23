@@ -1,0 +1,29 @@
+# ===== 敏感信息：绝不入库 =====
+# 签名密钥（泄露=任何人可伪造你的 App 更新；丢失=无法发布同名签名更新包，请单独备份！）
+keystore/
+# 本地凭据（sdk 路径 + 签名密码）
+local.properties
+
+# ===== 构建产物 =====
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+
+# ===== 备份文件（开发期临时备份，不入库）=====
+*.bak-*
+backup_step*/
+backup-step*/
+
+# ===== 系统 =====
+.DS_Store
+Thumbs.db
+
+# ===== Kotlin =====
+.kotlin/
